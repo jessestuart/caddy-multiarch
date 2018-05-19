@@ -1,7 +1,8 @@
 # caddy
 
-[![][microbadger]][microbadger 2]
 [![][circleci]][circleci 2]
+[![][microbadger]][microbadger 2]
+[![][microbadger 3]][microbadger 2]
 
 A [Docker][docker] image for [Caddy][caddyserver]. This
 image includes cross-platform support, as well as the following Caddy plugins:
@@ -86,9 +87,8 @@ tls user@host.com
 [caddyserver 7]: https://caddyserver.com/docs/http.cache
 [caddyserver 8]: https://caddyserver.com/docs/tls.dns.cloudflare
 [caddyserver 9]: https://caddyserver.com/docs/telemetry
-[circleci]:
-https://circleci.com/gh/jessestuart/caddy-multiarch/tree/master.svg?style=shield
-[circleci 2]: https://circleci.com/gh/jessestuart/caddy-multiarch/tree/master
+[circleci]: https://circleci.com/gh/jessestuart/caddy-multiarch/tree/master.svg?style=shield
+[circleci 2]: https://circleci.com/gh/jessestuart/caddy-multiarch/tree/master
 [docker]: https://docker.com
 [getcomposer]: https://getcomposer.org
 [github]: https://github.com/mholt/caddy/tree/v0.11.0
@@ -98,4 +98,5 @@ https://circleci.com/gh/jessestuart/caddy-multiarch/tree/master.svg?style=shield
 [letsencrypt 3]: https://community.letsencrypt.org/t/rate-limits-for-lets-encrypt/6769
 [microbadger]: https://images.microbadger.com/badges/image/jessestuart/caddy.svg
 [microbadger 2]: https://microbadger.com/images/jessestuart/caddy
+[microbadger 3]: https://images.microbadger.com/badges/version/jessestuart/caddy.svg
 [shields]: https://img.shields.io/badge/version-0.11.0-blue.svg
