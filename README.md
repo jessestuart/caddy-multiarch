@@ -86,8 +86,7 @@ tls user@host.com
 [caddyserver 7]: https://caddyserver.com/docs/http.cache
 [caddyserver 8]: https://caddyserver.com/docs/tls.dns.cloudflare
 [caddyserver 9]: https://caddyserver.com/docs/telemetry
-[circleci]:
-https://circleci.com/gh/jessestuart/caddy-multiarch/tree/master.svg?style=shield
+[circleci]: https://img.shields.io/circleci/project/github/jessestuart/caddy-multiarch.svg
 [circleci 2]: https://circleci.com/gh/jessestuart/caddy-multiarch/tree/master
 [docker]: https://docker.com
 [getcomposer]: https://getcomposer.org
