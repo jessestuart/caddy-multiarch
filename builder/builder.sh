@@ -6,8 +6,13 @@ TELEMETRY=${ENABLE_TELEMETRY:-"true"}
 git clone https://github.com/mholt/caddy $GOPATH/src/github.com/mholt/caddy
 cd $GOPATH/src/github.com/mholt/caddy || exit 1
 
+export PATH=$GOPATH/bin:$GOPATH/bin/linux_$GOARCH:$PATH
+
+echo $PATH
+
 # plugin helper
 GOOS=linux GOARCH=$GOARCH go get -v github.com/abiosoft/caddyplug/caddyplug
+ls -alh $GOPATH/bin
 if [ $GOARCH == 'amd64' ]; then
   alias caddyplug="GOOS=linux GOARCH=$GOARCH $GOPATH/bin/caddyplug"
 else

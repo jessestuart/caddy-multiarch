@@ -30,7 +30,6 @@ workflows:
                 - master
 
 shared: &shared
-  name: Build and push Docker image.
   docker:
     - image: docker:18-git
   steps:

@@ -6,9 +6,7 @@ FROM abiosoft/caddy:builder as builder
 
 COPY GOARCH /GOARCH
 
-COPY qemu-* /usr/bin/
-
-ARG plugins="git,filemanager,cors,realip,expires,cache,cloudflare"
+ARG plugins="cache,cloudflare,cors,expires,git,realip,prometheus,restic"
 
 ARG goarch
 ENV GOARCH $goarch
