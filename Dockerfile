@@ -1,8 +1,7 @@
-ARG target
-
 # =======
 # Builder
 # =======
+ARG target
 FROM abiosoft/caddy:builder as builder
 
 COPY GOARCH /GOARCH
