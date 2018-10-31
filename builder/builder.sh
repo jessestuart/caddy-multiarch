@@ -1,10 +1,10 @@
 #!/bin/sh
 
-VERSION=${VERSION:-"0.11.0"}
+VERSION=${VERSION:-"v0.11.0"}
 TELEMETRY=${ENABLE_TELEMETRY:-"true"}
 
 # caddy
-git clone https://github.com/mholt/caddy -b "v$VERSION" /go/src/github.com/mholt/caddy \
+git clone https://github.com/mholt/caddy -b "$VERSION" /go/src/github.com/mholt/caddy \
     && cd /go/src/github.com/mholt/caddy \
     && git checkout -b "v$VERSION"
 
