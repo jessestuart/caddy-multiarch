@@ -7,13 +7,12 @@
 A [Docker][docker] image for [Caddy][caddyserver]. This
 image includes cross-platform support, as well as the following Caddy plugins:
 
-* [git][caddyserver 2]
-* [filemanager][caddyserver 3]
-* [cors][caddyserver 4]
-* [realip][caddyserver 5]
-* [expires][caddyserver 6]
-* [cache][caddyserver 7]
-* [cloudflare (for DNS challenge authentication)][caddyserver 8]
+- [git][caddyserver 2]
+- [cors][caddyserver 4]
+- [realip][caddyserver 5]
+- [expires][caddyserver 6]
+- [cache][caddyserver 7]
+- [cloudflare (for DNS challenge authentication)][caddyserver 8]
 
 ## Getting Started
 
@@ -77,7 +76,6 @@ tls user@host.com
 ```
 
 [caddyserver 2]: https://caddyserver.com/docs/http.git
-[caddyserver 3]: https://caddyserver.com/docs/http.filemanager
 [caddyserver 4]: https://caddyserver.com/docs/http.cors
 [caddyserver 5]: https://caddyserver.com/docs/http.realip
 [caddyserver 6]: https://caddyserver.com/docs/http.expires

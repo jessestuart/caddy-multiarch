@@ -5,11 +5,7 @@ ARG target
 # =======
 FROM abiosoft/caddy:builder as builder
 
-COPY GOARCH /GOARCH
-
-COPY qemu-* /usr/bin/
-
-ARG plugins="git,filemanager,cors,realip,expires,cache,cloudflare"
+ARG plugins="git,cors,realip,expires,cache,cloudflare"
 
 ARG goarch
 ENV GOARCH $goarch
@@ -34,9 +30,6 @@ RUN VERSION=${version} PLUGINS=${plugins} GOARCH=${goarch} /bin/sh /usr/bin/buil
 FROM $target/alpine
 LABEL maintainer="Jesse Stuart <hi@jessestuart.com>"
 LABEL caddy_version="$version"
-
-ARG arch
-ENV ARCH=$arch
 
 COPY qemu-* /usr/bin/
 
