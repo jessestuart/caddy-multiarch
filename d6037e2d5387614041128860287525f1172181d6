@@ -1,0 +1,4 @@
+[ver:1,total:120]
+Dockerfile:60,1547424000:60,m
+builder/builder.sh:30,1547424000:30,m
+.gtm/terminal.app:30,1547424000:30,r
