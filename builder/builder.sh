@@ -3,14 +3,19 @@
 export VERSION=${VERSION:-"0.11.0"}
 export TELEMETRY=${ENABLE_TELEMETRY:-"true"}
 
-export PATH="/usr/bin:$PATH"
+export PATH="/usr/bin:$GOPATH/bin:$GOPATH/bin/linux_$GOARCH:$GOROOT/bin:$PATH"
 
 # caddy
 CADDY_ROOT=/go/src/github.com/mholt/caddy
 mkdir -p $CADDY_ROOT
-git clone https://github.com/mholt/caddy -b "$VERSION" /go/src/github.com/mholt/caddy
+git clone https://github.com/mholt/caddy -b "v$VERSION" /go/src/github.com/mholt/caddy
 cd /go/src/github.com/mholt/caddy || return 1
-git checkout -b "${VERSION}"
+git checkout -b "v${VERSION}"
+
+echo "==================================="
+echo "PATH:"
+echo $PATH
+echo "==================================="
 
 # plugin helper
 GOOS=linux GOARCH=${GOARCH} go get -v github.com/abiosoft/caddyplug/caddyplug

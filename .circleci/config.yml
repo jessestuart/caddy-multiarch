@@ -35,21 +35,22 @@ shared: &shared
     - image: docker:18-git
   steps:
     - checkout
-
     - setup_remote_docker:
         docker_layer_caching: true
-
     - run: apk add --no-cache curl jq
-
+    - run:
+        command: |-
+          echo 'export IMAGE_ID="jessestuart/caddy"' >> $BASH_ENV
+          echo 'export GITHUB_REPO="mholt/caddy"' >> $BASH_ENV
+          echo 'export VERSION=$(curl -s 'https://api.github.com/repos/mholt/caddy/releases/latest" | jq -r '.tag_name' | tr -d 'v')" >> $BASH_ENV
+          echo 'export PATH="$GOPATH/bin:$PATH"' >> $BASH_ENV
+          echo 'export QEMU_VERSION="v3.1.0-2"' >> $BASH_ENV
+          source $BASH_ENV
+          echo $VERSION
     - run:
         name: Build Docker image.
-        command: |
-          # TODO: Extract these vars out to CirleCI's $BASH_ENV path-y variable,
-          #       because DRY.
-          export IMAGE_ID="jessestuart/caddy"
-          export GITHUB_REPO="mholt/caddy"
-          export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name")
-
+        command: |-
+          source $BASH_ENV
           if [ $GOARCH == 'amd64' ]; then
             touch qemu-amd64-static
           else
@@ -67,10 +68,7 @@ shared: &shared
     - run:
         name: Push image to Docker Hub.
         command: |
-          export IMAGE_ID="jessestuart/caddy"
-          export GITHUB_REPO="mholt/caddy"
-          export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name")
-
+          source $BASH_ENV
           echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
           docker push "${IMAGE_ID}:${VERSION}-${GOARCH}"
 
@@ -83,7 +81,6 @@ jobs:
     environment:
       GOARCH: amd64
       QEMU_ARCH: amd64
-      QEMU_VERSION: v3.1.0-2
       TAG: amd64
       TARGET: amd64
   build-arm64:
@@ -91,7 +88,6 @@ jobs:
     environment:
       GOARCH: arm64
       QEMU_ARCH: aarch64
-      QEMU_VERSION: v3.1.0-2
       TAG: arm64
       TARGET: arm64v8
   build-armhf:
@@ -99,7 +95,6 @@ jobs:
     environment:
       GOARCH: arm
       QEMU_ARCH: arm
-      QEMU_VERSION: v3.1.0-2
       TAG: arm
       TARGET: arm32v6
 
@@ -120,39 +115,35 @@ jobs:
           name: Determine repo version.
           command: |
             apk update && apk add curl jq
-            curl -s https://api.github.com/repos/${GITHUB_REPO}/releases/latest | jq -r ".tag_name" > ~/VERSION
+            echo 'export GITHUB_REPO="mholt/caddy"' >> $BASH_ENV'
+            echo 'export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name" | tr -d "v")' >> $BASH_ENV'
 
       - run:
           name: Install manifest-tool.
           command: |
-            export VERSION=$(cat ~/VERSION)
-
             echo "Installing manifest-tool."
-            wget https://github.com/estesp/manifest-tool/releases/download/v0.7.0/manifest-tool-linux-amd64
-            mv manifest-tool-linux-amd64 /usr/bin/manifest-tool
-            chmod +x /usr/bin/manifest-tool
+            wget https://github.com/estesp/manifest-tool/releases/download/v0.9.0/manifest-tool-linux-amd64
             manifest-tool --version
 
       - run:
           name: Push Docker manifest.
           command: |
-            export VERSION=$(cat ~/VERSION)
-
             echo "Authenticating with Docker hub."
             echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
 
-            echo "Pushing manifest for: $IMAGE"
+            echo "Pushing manifest for: $IMAGE:$VERSION"
+
+            manifest-tool push from-args \
+              --platforms linux/arm,linux/arm64,linux/amd64 \
+              --template "$IMAGE:$VERSION-ARCH" \
+              --target "$IMAGE:$VERSION"
+
             if [ "${CIRCLE_BRANCH}" == 'master' ]; then
               manifest-tool push from-args \
                 --platforms linux/arm,linux/arm64,linux/amd64 \
                 --template "$IMAGE:$VERSION-ARCH" \
                 --target "$IMAGE:latest"
             fi
-
-            manifest-tool push from-args \
-              --platforms linux/arm,linux/arm64,linux/amd64 \
-              --template "$IMAGE:$VERSION-ARCH" \
-              --target "$IMAGE:$VERSION"
 
       - run:
           name: Verify manifest was persisted remotely.

@@ -19,8 +19,13 @@ RUN mkdir -p /go/src/github.com/${GITHUB_REPO}
 
 # process wrapper
 RUN go get -v github.com/abiosoft/parent && \
-      (cp /go/bin/**/parent /bin/parent || \
-       cp -f /go/bin/parent /bin/parent) &>/dev/null
+    (cp /go/bin/**/parent /bin/parent || \
+    cp -f /go/bin/parent /bin/parent) &>/dev/null
+
+RUN \
+    go get -v github.com/abiosoft/caddyplug/caddyplug && \
+    ls -alhR /go/bin && \
+    cp /go/bin/**/caddyplug /usr/bin/
 
 RUN rm -rf /usr/bin/builder.sh
 COPY builder/builder.sh /usr/bin/builder.sh
