@@ -2,3 +2,10 @@
 .circleci/config.yml:180,1547416800:180,m
 .gtm/terminal.app:170,1547416800:170,r
 builder/builder.sh:130,1547416800:130,m
+
+[ver:1,total:1380]
+.gtm/terminal.app:680,1540962000:180,1540965600:180,1547413200:200,1547416800:120,r
+Dockerfile:360,1547413200:360,m
+builder/builder.sh:240,1547416800:240,m
+.git/rebase-merge/git-rebase-todo:60,1547416800:60,d
+.circleci/config.yml:40,1547413200:40,r
