@@ -3,3 +3,7 @@
 builder/builder.sh:120,1547420400:120,m
 Dockerfile:56,1547420400:56,m
 .circleci/config.yml:20,1547420400:20,r
+
+[ver:1,total:240]
+Dockerfile:180,1547420400:180,m
+.gtm/terminal.app:60,1547420400:60,r
