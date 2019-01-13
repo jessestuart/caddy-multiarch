@@ -1,0 +1,5 @@
+[ver:1,total:540]
+.gtm/terminal.app:380,1547420400:380,r
+Dockerfile:80,1547420400:80,m
+builder/builder.sh:50,1547420400:50,m
+.circleci/config.yml:30,1547420400:30,m
