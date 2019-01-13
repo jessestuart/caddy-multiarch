@@ -5,6 +5,8 @@ ARG target
 # =======
 FROM abiosoft/caddy:builder as builder
 
+COPY qemu-* /usr/bin/
+
 ARG plugins="git,cors,realip,expires,cache,cloudflare"
 
 ARG goarch
@@ -12,6 +14,8 @@ ENV GOARCH $goarch
 ENV GOROOT /usr/local/go
 ENV GOPATH /go
 ENV PATH "$GOROOT/bin:$GOPATH/bin:$GOPATH/linux_$GOARCH/bin:$PATH"
+
+RUN mkdir -p /go/src/github.com/${GITHUB_REPO}
 
 # process wrapper
 RUN go get -v github.com/abiosoft/parent && \
@@ -27,7 +31,8 @@ RUN VERSION=${version} PLUGINS=${plugins} GOARCH=${goarch} /bin/sh /usr/bin/buil
 # ===========
 # Final stage
 # ===========
-FROM $target/alpine
+FROM $target/alpine:3.9
+
 LABEL maintainer="Jesse Stuart <hi@jessestuart.com>"
 LABEL caddy_version="$version"
 
@@ -52,8 +57,9 @@ VOLUME /root/.caddy /srv
 WORKDIR /srv
 
 COPY Caddyfile /etc/Caddyfile
+COPY index.html /src/index.html
 
-# install process wrapper
+# Install process wrapper.
 COPY --from=builder /bin/parent /bin/parent
 
 ENTRYPOINT ["/bin/parent", "caddy"]
