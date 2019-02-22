@@ -1,0 +1,6 @@
+[ver:1,total:720]
+builder/builder.sh:290,1550822400:290,m
+.gtm/terminal.app:210,1550822400:210,r
+Dockerfile:160,1550822400:160,m
+.circleci/config.yml:40,1550822400:40,r
+README.md:20,1550822400:20,r
