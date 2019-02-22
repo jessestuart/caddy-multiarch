@@ -117,21 +117,23 @@ jobs:
             apk update && apk add curl jq
             echo 'export GITHUB_REPO="mholt/caddy"' >> $BASH_ENV'
             echo 'export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name" | tr -d "v")' >> $BASH_ENV'
+            source "$BASH_ENV"
 
       - run:
           name: Install manifest-tool.
           command: |
-            echo "Installing manifest-tool."
-            wget https://github.com/estesp/manifest-tool/releases/download/v0.9.0/manifest-tool-linux-amd64
+            echo 'Installing manifest-tool.'
+            wget https://github.com/estesp/manifest-tool/releases/download/v0.9.0/manifest-tool-linux-amd64 && \
+              mv manifest-tool-linux-amd64 /usr/bin/manifest-tool && \
+              chmod +x /usr/bin/manifest-tool
             manifest-tool --version
 
       - run:
           name: Push Docker manifest.
           command: |
+            source "$BASH_ENV"
             echo "Authenticating with Docker hub."
             echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
-
-            echo "Pushing manifest for: $IMAGE:$VERSION"
 
             manifest-tool push from-args \
               --platforms linux/arm,linux/arm64,linux/amd64 \
