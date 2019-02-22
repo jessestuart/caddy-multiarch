@@ -1,3 +1,8 @@
 [ver:1,total:120]
 builder/builder.sh:60,1550836800:60,m
 .gtm/terminal.app:60,1550836800:60,r
+
+[ver:1,total:180]
+.gtm/terminal.app:135,1550836800:135,r
+builder/builder.sh:30,1550836800:30,m
+.circleci/config.yml:15,1550836800:15,r
