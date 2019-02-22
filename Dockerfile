@@ -25,7 +25,8 @@ RUN go get -v github.com/abiosoft/parent && \
 RUN \
     go get -v github.com/abiosoft/caddyplug/caddyplug && \
     ls -alhR /go/bin && \
-    cp /go/bin/**/caddyplug /usr/bin/
+    cp /go/bin/caddyplug /usr/bin/ &>/dev/null || return 0 && \
+    cp /go/bin/**/caddyplug /usr/bin/ &>/dev/null || return 0
 
 RUN rm -rf /usr/bin/builder.sh
 COPY builder/builder.sh /usr/bin/builder.sh
