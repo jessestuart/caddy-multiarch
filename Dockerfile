@@ -63,7 +63,7 @@ VOLUME /root/.caddy /srv
 WORKDIR /srv
 
 COPY Caddyfile /etc/Caddyfile
-COPY index.html /src/index.html
+# COPY index.html /src/index.html
 
 # Install process wrapper.
 COPY --from=builder /bin/parent /bin/parent
