@@ -57,7 +57,6 @@ shared: &shared
             docker run --rm --privileged multiarch/qemu-user-static:register
           fi
 
-          echo "$GOARCH" > ./GOARCH
           docker build \
             -t "${IMAGE_ID}:${VERSION}-${GOARCH}" \
             --build-arg version=$VERSION \
@@ -84,7 +83,7 @@ jobs:
     environment:
       GOARCH: amd64
       QEMU_ARCH: amd64
-      QEMU_VERSION: v2.11.0
+      QEMU_VERSION: v3.1.0-3
       TAG: amd64
       TARGET: amd64
   build-arm64:
@@ -92,7 +91,7 @@ jobs:
     environment:
       GOARCH: arm64
       QEMU_ARCH: aarch64
-      QEMU_VERSION: v2.11.0
+      QEMU_VERSION: v3.1.0-3
       TAG: arm64
       TARGET: arm64v8
   build-armhf:
@@ -100,7 +99,7 @@ jobs:
     environment:
       GOARCH: arm
       QEMU_ARCH: arm
-      QEMU_VERSION: v2.11.0
+      QEMU_VERSION: v3.1.0-3
       TAG: arm
       TARGET: arm32v6
 
@@ -129,7 +128,7 @@ jobs:
             export VERSION=$(cat ~/VERSION)
 
             echo "Installing manifest-tool."
-            wget https://github.com/estesp/manifest-tool/releases/download/v0.7.0/manifest-tool-linux-amd64
+            wget https://github.com/estesp/manifest-tool/releases/download/v0.9.0/manifest-tool-linux-amd64
             mv manifest-tool-linux-amd64 /usr/bin/manifest-tool
             chmod +x /usr/bin/manifest-tool
             manifest-tool --version
