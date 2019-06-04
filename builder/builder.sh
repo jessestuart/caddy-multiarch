@@ -6,6 +6,8 @@ TELEMETRY=${ENABLE_TELEMETRY:-"true"}
 # add `v` prefix for version numbers
 [ "$(echo $VERSION | cut -c1)" -ge 0 ] 2>/dev/null && VERSION="v$VERSION"
 
+echo "GOARCH: $GOARCH"
+
 stage() {
   STAGE="$1"
   echo
@@ -22,7 +24,7 @@ end_stage() {
 }
 
 get_package() {
-  GO111MODULE=off GOOS=linux GOARCH=amd64 caddyplug package $1 2>/dev/null
+  GO111MODULE=off GOOS=linux GOARCH=$GOARCH caddyplug package $1 2>/dev/null
 }
 
 plugins() {
@@ -40,11 +42,11 @@ module() {
   mkdir -p /caddy
   cd /caddy # build dir
 
-  cat "replace github.com/h2non/gock => gopkg.in/h2non/gock.v1 v1.0.14" >>go.mod
-
   # setup module
   go mod init caddy
   go get -v github.com/mholt/caddy@$VERSION
+
+  echo "replace github.com/h2non/gock => gopkg.in/h2non/gock.v1 v1.0.14" >>go.mod
 
   # plugins
   cp -r /plugins/. .
@@ -102,7 +104,7 @@ end_stage
 
 # plugin helper
 stage "installing plugin helper"
-GOOS=linux GOARCH=amd64 go get -v github.com/abiosoft/caddyplug/caddyplug
+GOOS=linux GOARCH=$GOARCH go get -v github.com/abiosoft/caddyplug/caddyplug
 end_stage
 
 # check for modules support

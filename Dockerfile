@@ -7,18 +7,21 @@ FROM abiosoft/caddy:builder as builder
 
 ARG version="1.0.0"
 ARG plugins="cache,cloudflare,cors,expires,git,realip"
+ARG goarch
 
 ENV GO111MODULE on
+ENV GOARCH $goarch
 
+COPY builder/builder.sh /usr/bin/builder.sh
 # Process wrapper.
-RUN go get -v github.com/abiosoft/parent
-
-RUN VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=true /bin/sh /usr/bin/builder.sh
+RUN export GOARCH=$GOARCH && \
+    go get -v github.com/abiosoft/parent && \
+    VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=true /usr/bin/builder.sh
 
 # ===========
 # Final stage
 # ===========
-FROM alpine:3.9
+FROM $target/alpine:3.9
 LABEL maintainer="Jesse Stuart <hi@jessestuart.com>"
 
 ARG version="1.0.0"
