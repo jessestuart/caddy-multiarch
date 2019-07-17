@@ -1,4 +1,5 @@
-FROM golang:1.12.4-alpine
+ARG target
+FROM $target/golang:1.12.4-alpine
 
 RUN apk add --no-cache git gcc musl-dev
 

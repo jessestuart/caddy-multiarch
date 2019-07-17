@@ -5,26 +5,28 @@ ARG target
 # =======
 FROM abiosoft/caddy:builder as builder
 
-ARG version="1.0.0"
+ARG version="1.0.1"
 ARG plugins="cache,cloudflare,cors,expires,git,realip"
+ARG enable_telemetry="true"
+
 ARG goarch
-
-ENV GO111MODULE on
 ENV GOARCH $goarch
+ENV GO111MODULE on
 
-COPY builder/builder.sh /usr/bin/builder.sh
-# Process wrapper.
-RUN export GOARCH=$GOARCH && \
-    go get -v github.com/abiosoft/parent && \
-    VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=true /usr/bin/builder.sh
+# process wrapper
+RUN go get -v github.com/abiosoft/parent
+
+RUN \
+  VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=${enable_telemetry} \
+  /bin/sh /usr/bin/builder.sh
 
 # ===========
 # Final stage
 # ===========
-FROM $target/alpine:3.9
+FROM $target/alpine:3.10
 LABEL maintainer="Jesse Stuart <hi@jessestuart.com>"
 
-ARG version="1.0.0"
+ARG version="1.0.1"
 LABEL caddy_version="$version"
 
 # Let's Encrypt Agreement
@@ -33,7 +35,14 @@ ENV ACME_AGREE="true"
 # Telemetry Stats
 ENV ENABLE_TELEMETRY="true"
 
-RUN apk add --no-cache openssh-client git
+RUN apk add --no-cache \
+    ca-certificates \
+    git \
+    mailcap \
+    openssh-client \
+    tzdata
+
+# RUN apk add --no-cache openssh-client git
 
 # install caddy
 COPY --from=builder /install/caddy /usr/bin/caddy

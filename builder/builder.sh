@@ -70,31 +70,31 @@ module() {
 EOF
 }
 
-legacy() {
-  cd /go/src/github.com/mholt/caddy/caddy # build dir
+# legacy() {
+#   cd /go/src/github.com/mholt/caddy/caddy # build dir
 
-  # plugins
-  cp -r /plugins/. ../caddyhttp
+#   # plugins
+#   cp -r /plugins/. ../caddyhttp
 
-  # telemetry
-  run_file="/go/src/github.com/mholt/caddy/caddy/caddymain/run.go"
-  if [ "$TELEMETRY" = "false" ]; then
-    cat >"$run_file.disablestats.go" <<EOF
-        package caddymain
-        import "os"
-        func init() {
-            switch os.Getenv("ENABLE_TELEMETRY") {
-            case "0", "false":
-                EnableTelemetry = false
-            case "1", "true":
-                EnableTelemetry = true
-            default:
-                EnableTelemetry = false
-            }
-        }
-EOF
-  fi
-}
+#   # telemetry
+#   run_file="/go/src/github.com/mholt/caddy/caddy/caddymain/run.go"
+#   if [ "$TELEMETRY" = "false" ]; then
+#     cat >"$run_file.disablestats.go" <<EOF
+#         package caddymain
+#         import "os"
+#         func init() {
+#             switch os.Getenv("ENABLE_TELEMETRY") {
+#             case "0", "false":
+#                 EnableTelemetry = false
+#             case "1", "true":
+#                 EnableTelemetry = true
+#             default:
+#                 EnableTelemetry = false
+#             }
+#         }
+# EOF
+#   fi
+# }
 
 # caddy source
 stage "fetching caddy source"
@@ -123,7 +123,7 @@ end_stage
 
 # build
 stage "building caddy"
-CGO_ENABLED=0 go build -o caddy
+CGO_ENABLED=0 GOARCH=$GOARCH go build -o caddy
 end_stage
 
 # copy binary
