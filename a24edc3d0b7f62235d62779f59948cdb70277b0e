@@ -1,0 +1,6 @@
+[ver:1,total:720]
+.gtm/terminal.app:275,1565989200:275,r
+.circleci/config.yml:183,1565989200:183,m
+.circleci/build_image.sh:127,1565989200:127,m
+Dockerfile:90,1565989200:90,m
+.circleci/load_env.sh:45,1565989200:45,m
