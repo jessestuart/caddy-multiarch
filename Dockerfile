@@ -15,6 +15,7 @@ ENV GO111MODULE on
 
 # process wrapper
 RUN go get -v github.com/abiosoft/parent
+RUN if test $(uname -m) == 'x86_64'; then return; else cp $GOPATH/bin/linux_${GOARCH}/parent /go/bin/parent; fi
 
 RUN \
   VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=${enable_telemetry} \

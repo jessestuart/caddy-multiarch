@@ -3,13 +3,13 @@ version: 2
 build_jobs: &build_jobs
   jobs:
     - build-amd64
-    # - build-arm64
-    # - build-armhf
+    - build-arm64
+    - build-armhf
     - push-manifest:
         requires:
           - build-amd64
-          # - build-arm64
-          # - build-armhf
+          - build-arm64
+          - build-armhf
 
 # ====================
 # WORKFLOW DECLARATION
@@ -89,43 +89,4 @@ jobs:
       - setup_remote_docker
       - run:
           name: Determine repo version.
-          command: |
-            apk update && apk add curl jq
-            curl -s https://api.github.com/repos/${GITHUB_REPO}/releases/latest | jq -r ".tag_name" > ~/VERSION
-
-      - run:
-          name: Install manifest-tool.
-          command: |
-            export VERSION=$(cat ~/VERSION)
-
-            echo "Installing manifest-tool."
-            curl -sLO https://github.com/estesp/manifest-tool/releases/download/v1.0.0-rc3/manifest-tool-linux-amd64 > /usr/bin/manifest-tool
-            chmod +x /usr/bin/manifest-tool
-            manifest-tool --version
-
-      - run:
-          name: Push Docker manifest.
-          command: |
-            export VERSION=$(cat ~/VERSION)
-
-            echo "Authenticating with Docker hub."
-            echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
-
-            echo "Pushing manifest for: $IMAGE"
-            if [ "${CIRCLE_BRANCH}" == 'master' ]; then
-              manifest-tool push from-args \
-                --platforms linux/amd64 \
-                --template "$IMAGE:$VERSION-ARCH" \
-                --target "$IMAGE:latest"
-            fi
-
-            manifest-tool push from-args \
-              --platforms linux/amd64 \
-              --template "$IMAGE:$VERSION-ARCH" \
-              --target "$IMAGE:$VERSION"
-
-      - run:
-          name: Verify manifest was persisted remotely.
-          command: |
-            export VERSION=$(cat ~/VERSION)
-            manifest-tool inspect "$IMAGE:$VERSION"
+          command: sh -c .circleci/push-manifest.sh
