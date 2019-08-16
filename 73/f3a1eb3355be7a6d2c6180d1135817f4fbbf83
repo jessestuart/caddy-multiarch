@@ -1,0 +1,12 @@
+[ver:1,total:120]
+.git/COMMIT_EDITMSG:75,1565992800:75,r
+.git/rebase-merge/git-rebase-todo:30,1565992800:30,r
+.gtm/terminal.app:15,1565992800:15,r
+
+[ver:1,total:1680]
+.circleci/config.yml:620,1555333200:620,m
+Dockerfile:450,1555333200:450,r
+.gtm/terminal.app:254,1555333200:230,1555336800:24,r
+builder/builder.sh:206,1555333200:110,1555336800:96,m
+foo.sh:126,1555333200:30,1555336800:96,d
+builder/Dockerfile:24,1555336800:24,m
