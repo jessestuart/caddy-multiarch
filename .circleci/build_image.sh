@@ -11,5 +11,4 @@ docker build \
   -t "${IMAGE_ID}:${VERSION}-${GOARCH}" \
   --build-arg version=$VERSION \
   --build-arg target=$TARGET \
-  --build-arg arch=$QEMU_ARCH \
   --build-arg goarch=$GOARCH .
