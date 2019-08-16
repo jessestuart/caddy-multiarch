@@ -5,7 +5,7 @@ ARG target
 # =======
 FROM abiosoft/caddy:builder as builder
 
-ARG version="1.0.1"
+ARG version="1.0.3"
 ARG plugins="cache,cloudflare,cors,expires,git,realip"
 ARG enable_telemetry="true"
 
@@ -23,10 +23,10 @@ RUN \
 # ===========
 # Final stage
 # ===========
-FROM $target/alpine:3.10
+FROM $target/alpine
 LABEL maintainer="Jesse Stuart <hi@jessestuart.com>"
 
-ARG version="1.0.1"
+ARG version="1.0.3"
 LABEL caddy_version="$version"
 
 # Let's Encrypt Agreement
@@ -62,4 +62,4 @@ COPY index.html /srv/index.html
 COPY --from=builder /go/bin/parent /bin/parent
 
 ENTRYPOINT ["/bin/parent", "caddy"]
-CMD ["--conf", "/etc/Caddyfile", "--log", "stdout", "--agree=$ACME_AGREE"]
+CMD ["--conf", "/etc/Caddyfile", "--log", "stdout", "--agree", "true"]

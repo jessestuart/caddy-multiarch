@@ -29,46 +29,28 @@ workflows:
                 - master
 
 shared: &shared
+  working_directory: /root/caddy
   docker:
-    - image: docker:18-git
+    - image: docker:stable-git
   steps:
     - checkout
+    - setup_remote_docker
+    - run: apk add --no-cache curl jq bash make
 
-    - setup_remote_docker:
-        docker_layer_caching: true
-
-    - run: apk add --no-cache curl jq
+    - run:
+        name: Set up shared environment vars.
+        command: .circleci/load_env.sh
 
     - run:
         name: Build Docker image.
         command: |
-          # TODO: Extract these vars out to CirleCI's $BASH_ENV path-y variable,
-          #       because DRY.
-          export IMAGE_ID="jessestuart/caddy"
-          export GITHUB_REPO="mholt/caddy"
-          export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name")
-
-          if [ $GOARCH == 'amd64' ]; then
-            touch qemu-amd64-static
-          else
-            curl -sL "https://github.com/multiarch/qemu-user-static/releases/download/${QEMU_VERSION}/qemu-${QEMU_ARCH}-static.tar.gz" | tar xz
-            docker run --rm --privileged multiarch/qemu-user-static:register
-          fi
-
-          docker build \
-            -t "${IMAGE_ID}:${VERSION}-${GOARCH}" \
-            --build-arg version=$VERSION \
-            --build-arg target=$TARGET \
-            --build-arg arch=$QEMU_ARCH \
-            --build-arg goarch=$GOARCH .
+          source $BASH_ENV
+          .circleci/build_image.sh
 
     - run:
         name: Push image to Docker Hub.
         command: |
-          export IMAGE_ID="jessestuart/caddy"
-          export GITHUB_REPO="mholt/caddy"
-          export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name")
-
+          source $BASH_ENV
           echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
           docker push "${IMAGE_ID}:${VERSION}-${GOARCH}"
 
@@ -109,7 +91,7 @@ jobs:
     docker:
       - image: docker:18-git
     environment:
-      GITHUB_REPO: mholt/caddy
+      GITHUB_REPO: caddyserver/caddy
       IMAGE: jessestuart/caddy
     steps:
       - checkout
