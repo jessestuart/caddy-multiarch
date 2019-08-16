@@ -1,0 +1,4 @@
+[ver:1,total:300]
+.gtm/terminal.app:220,1565989200:220,r
+.circleci/config.yml:60,1565989200:60,r
+.circleci/build_image.sh:20,1565989200:20,m
