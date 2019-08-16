@@ -1,0 +1,8 @@
+[ver:1,total:2880]
+.gtm/terminal.app:1947,1563346800:180,1565679600:1150,1565985600:320,1565989200:297,r
+.circleci/config.yml:446,1565985600:100,1565989200:346,m
+Dockerfile:210,1565989200:210,m
+scripts/load_env.sh:155,1565989200:155,m
+scripts/build_image.sh:57,1565989200:57,m
+.git/rebase-merge/git-rebase-todo:50,1565679600:50,d
+.dockerignore:15,1565989200:15,r
