@@ -1,16 +1,15 @@
----
 version: 2
 
 build_jobs: &build_jobs
   jobs:
     - build-amd64
-    - build-arm64
-    - build-armhf
+    # - build-arm64
+    # - build-armhf
     - push-manifest:
         requires:
           - build-amd64
-          - build-arm64
-          - build-armhf
+          # - build-arm64
+          # - build-armhf
 
 # ====================
 # WORKFLOW DECLARATION
@@ -30,50 +29,21 @@ workflows:
                 - master
 
 shared: &shared
-  name: Build and push Docker image.
+  working_directory: /root/caddy
   docker:
-    - image: docker:18-git
+    - image: docker:stable-git
   steps:
     - checkout
+    - setup_remote_docker
+    - run: apk add --no-cache curl jq bash make
 
-    - setup_remote_docker:
-        docker_layer_caching: true
-
-    - run: apk add --no-cache curl jq
+    - run:
+        name: Set up shared environment vars.
+        command: .circleci/load_env.sh
 
     - run:
         name: Build Docker image.
-        command: |
-          # TODO: Extract these vars out to CirleCI's $BASH_ENV path-y variable,
-          #       because DRY.
-          export IMAGE_ID="jessestuart/caddy"
-          export GITHUB_REPO="mholt/caddy"
-          export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name")
-
-          if [ $GOARCH == 'amd64' ]; then
-            touch qemu-amd64-static
-          else
-            curl -sL "https://github.com/multiarch/qemu-user-static/releases/download/${QEMU_VERSION}/qemu-${QEMU_ARCH}-static.tar.gz" | tar xz
-            docker run --rm --privileged multiarch/qemu-user-static:register
-          fi
-
-          echo "$GOARCH" > ./GOARCH
-          docker build \
-            -t "${IMAGE_ID}:${VERSION}-${GOARCH}" \
-            --build-arg version=$VERSION \
-            --build-arg target=$TARGET \
-            --build-arg arch=$QEMU_ARCH \
-            --build-arg goarch=$GOARCH .
-
-    - run:
-        name: Push image to Docker Hub.
-        command: |
-          export IMAGE_ID="jessestuart/caddy"
-          export GITHUB_REPO="mholt/caddy"
-          export VERSION=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name")
-
-          echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
-          docker push "${IMAGE_ID}:${VERSION}-${GOARCH}"
+        command: source $BASH_ENV && .circleci/build_image.sh
 
 # ================
 # JOB DECLARATIONS
@@ -84,7 +54,7 @@ jobs:
     environment:
       GOARCH: amd64
       QEMU_ARCH: amd64
-      QEMU_VERSION: v2.11.0
+      QEMU_VERSION: v4.0.0
       TAG: amd64
       TARGET: amd64
   build-arm64:
@@ -92,7 +62,7 @@ jobs:
     environment:
       GOARCH: arm64
       QEMU_ARCH: aarch64
-      QEMU_VERSION: v2.11.0
+      QEMU_VERSION: v4.0.0
       TAG: arm64
       TARGET: arm64v8
   build-armhf:
@@ -100,7 +70,7 @@ jobs:
     environment:
       GOARCH: arm
       QEMU_ARCH: arm
-      QEMU_VERSION: v2.11.0
+      QEMU_VERSION: v4.0.0
       TAG: arm
       TARGET: arm32v6
 
@@ -112,7 +82,7 @@ jobs:
     docker:
       - image: docker:18-git
     environment:
-      GITHUB_REPO: mholt/caddy
+      GITHUB_REPO: caddyserver/caddy
       IMAGE: jessestuart/caddy
     steps:
       - checkout
@@ -129,8 +99,7 @@ jobs:
             export VERSION=$(cat ~/VERSION)
 
             echo "Installing manifest-tool."
-            wget https://github.com/estesp/manifest-tool/releases/download/v0.7.0/manifest-tool-linux-amd64
-            mv manifest-tool-linux-amd64 /usr/bin/manifest-tool
+            curl -sLO https://github.com/estesp/manifest-tool/releases/download/v1.0.0-rc3/manifest-tool-linux-amd64 > /usr/bin/manifest-tool
             chmod +x /usr/bin/manifest-tool
             manifest-tool --version
 
@@ -145,13 +114,13 @@ jobs:
             echo "Pushing manifest for: $IMAGE"
             if [ "${CIRCLE_BRANCH}" == 'master' ]; then
               manifest-tool push from-args \
-                --platforms linux/arm,linux/arm64,linux/amd64 \
+                --platforms linux/amd64 \
                 --template "$IMAGE:$VERSION-ARCH" \
                 --target "$IMAGE:latest"
             fi
 
             manifest-tool push from-args \
-              --platforms linux/arm,linux/arm64,linux/amd64 \
+              --platforms linux/amd64 \
               --template "$IMAGE:$VERSION-ARCH" \
               --target "$IMAGE:$VERSION"
 

@@ -1,53 +1,136 @@
 #!/bin/sh
 
-VERSION=${VERSION:-"0.11.0"}
+VERSION=${VERSION:-"1.0.0"}
 TELEMETRY=${ENABLE_TELEMETRY:-"true"}
 
-# caddy
-git clone https://github.com/mholt/caddy -b "v$VERSION" /go/src/github.com/mholt/caddy \
-    && cd /go/src/github.com/mholt/caddy \
-    && git checkout -b "v$VERSION"
+# add `v` prefix for version numbers
+[ "$(echo $VERSION | cut -c1)" -ge 0 ] 2>/dev/null && VERSION="v$VERSION"
 
-# plugin helper
-GOOS=linux GOARCH=$GOARCH go get -v github.com/abiosoft/caddyplug/caddyplug
-if [ $GOARCH == 'amd64' ]; then
-  alias caddyplug="GOOS=linux GOARCH=$GOARCH $GOPATH/bin/caddyplug"
-else
-  alias caddyplug="GOOS=linux GOARCH=$GOARCH $GOPATH/bin/linux_$GOARCH/caddyplug"
-fi
+echo "GOARCH: $GOARCH"
 
-# telemetry
-run_file="/go/src/github.com/mholt/caddy/caddy/caddymain/run.go"
-line=$(awk '/const enableTelemetry = true/{print NR}' $run_file)
-if [ "$line" ] && [ $TELEMETRY = "false" ]; then
-    sed -i.bak -e "${line}d" $run_file
-    cat > "$run_file.disablestats.go" <<EOF
-    package caddymain
+stage() {
+  STAGE="$1"
+  echo
+  echo starting stage: $STAGE
+}
+
+end_stage() {
+  if [ $? -ne 0 ]; then
+    echo >&2 error at \'$STAGE\'
+    exit 1
+  fi
+  echo finished stage: $STAGE ✓
+  echo
+}
+
+get_package() {
+  GO111MODULE=off GOOS=linux GOARCH=$GOARCH caddyplug package $1 2>/dev/null
+}
+
+plugins() {
+  mkdir -p /plugins
+  for plugin in $(echo $PLUGINS | tr "," " "); do
+    import_package=$(get_package $plugin)
+    $go_mod || go get -v "$import_package" # not needed for modules
+    $go_mod && package="main" || package="caddyhttp"
+    printf "package $package\nimport _ \"$import_package\"" >/plugins/$plugin.go \
+      ;
+  done
+}
+
+module() {
+  mkdir -p /caddy
+  cd /caddy # build dir
+
+  # setup module
+  go mod init caddy
+  go get -v github.com/mholt/caddy@$VERSION
+
+  echo "replace github.com/h2non/gock => gopkg.in/h2non/gock.v1 v1.0.14" >>go.mod
+
+  # plugins
+  cp -r /plugins/. .
+
+  # main and telemetry
+  cat >main.go <<EOF
+    package main
+    import "github.com/mholt/caddy/caddy/caddymain"
     import "os"
-    var enableTelemetry = $TELEMETRY
-    func init() {
+    func main() {
         switch os.Getenv("ENABLE_TELEMETRY") {
         case "0", "false":
-            enableTelemetry = false
+            caddymain.EnableTelemetry = false
         case "1", "true":
-            enableTelemetry = true
+            caddymain.EnableTelemetry = true
+        default:
+            caddymain.EnableTelemetry = $TELEMETRY
         }
+        caddymain.Run()
     }
 EOF
-fi
+}
 
-# plugins
-for plugin in $(echo $PLUGINS | tr "," " "); do \
-  GOOS=linux GOARCH=$GOARCH go get -v $(caddyplug package $plugin); \
-  printf "package caddyhttp\nimport _ \"$(caddyplug package $plugin)\"" > \
-      /go/src/github.com/mholt/caddy/caddyhttp/$plugin.go ; \
-done
+# legacy() {
+#   cd /go/src/github.com/mholt/caddy/caddy # build dir
 
-# builder dependency
-git clone https://github.com/caddyserver/builds /go/src/github.com/caddyserver/builds
+#   # plugins
+#   cp -r /plugins/. ../caddyhttp
+
+#   # telemetry
+#   run_file="/go/src/github.com/mholt/caddy/caddy/caddymain/run.go"
+#   if [ "$TELEMETRY" = "false" ]; then
+#     cat >"$run_file.disablestats.go" <<EOF
+#         package caddymain
+#         import "os"
+#         func init() {
+#             switch os.Getenv("ENABLE_TELEMETRY") {
+#             case "0", "false":
+#                 EnableTelemetry = false
+#             case "1", "true":
+#                 EnableTelemetry = true
+#             default:
+#                 EnableTelemetry = false
+#             }
+#         }
+# EOF
+#   fi
+# }
+
+# caddy source
+stage "fetching caddy source"
+git clone https://github.com/mholt/caddy -b "$VERSION" /go/src/github.com/mholt/caddy &&
+  cd /go/src/github.com/mholt/caddy
+end_stage
+
+# plugin helper
+stage "installing plugin helper"
+GOOS=linux GOARCH=$GOARCH go get -v github.com/abiosoft/caddyplug/caddyplug
+end_stage
+
+# check for modules support
+go_mod=false
+[ -f /go/src/github.com/mholt/caddy/go.mod ] && export GO111MODULE=on && go_mod=true
+
+# generate plugins
+stage "generating plugins"
+plugins
+end_stage
+
+# add plugins and telemetry
+stage "customising plugins and telemetry"
+if $go_mod; then module; else legacy; fi
+end_stage
 
 # build
-cd /go/src/github.com/mholt/caddy/caddy \
-  && GOOS=linux GOARCH=$GOARCH go run build.go -goos=$GOOS -goarch=$GOARCH -goarm=$GOARM \
-  && mkdir -p /install \
-  && mv caddy /install
+stage "building caddy"
+CGO_ENABLED=0 GOARCH=$GOARCH go build -o caddy
+end_stage
+
+# copy binary
+stage "copying binary"
+mkdir -p /install &&
+  mv caddy /install &&
+  /install/caddy -version
+end_stage
+
+echo "installed caddy version $VERSION at /install/caddy"

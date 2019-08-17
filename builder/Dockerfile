@@ -1,8 +1,8 @@
-FROM golang:1.10-alpine
+ARG target
+FROM $target/golang:1.12.4-alpine
 
 RUN apk add --no-cache git gcc musl-dev
 
 COPY builder.sh /usr/bin/builder.sh
 
 CMD ["/bin/sh", "/usr/bin/builder.sh"]
-
