@@ -1,0 +1,5 @@
+[ver:1,total:540]
+.gtm/terminal.app:470,1565996400:180,1566003600:240,1566018000:50,r
+.git/COMMIT_EDITMSG:30,1566018000:30,r
+.circleci/config.yml:20,1566018000:20,m
+.git/rebase-merge/git-rebase-todo:20,1566018000:20,d
