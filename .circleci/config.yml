@@ -91,13 +91,12 @@ jobs:
           name: Determine repo version.
           command: |
             apk update && apk add curl jq
-            curl -s https://api.github.com/repos/${GITHUB_REPO}/releases/latest | jq -r ".tag_name" > ~/VERSION
+            sh .circleci/load_env.sh
 
       - run:
           name: Install manifest-tool.
           command: |
-            export VERSION=$(cat ~/VERSION)
-
+            source $BASH_ENV
             echo "Installing manifest-tool."
             curl -sLO https://github.com/estesp/manifest-tool/releases/download/v1.0.0-rc3/manifest-tool-linux-amd64 > /usr/bin/manifest-tool
             chmod +x /usr/bin/manifest-tool
@@ -106,26 +105,25 @@ jobs:
       - run:
           name: Push Docker manifest.
           command: |
-            export VERSION=$(cat ~/VERSION)
-
+            source $BASH_ENV
             echo "Authenticating with Docker hub."
             echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
 
-            echo "Pushing manifest for: $IMAGE"
+            echo "Pushing manifest for: $IMAGE:$VERSION"
             if [ "${CIRCLE_BRANCH}" == 'master' ]; then
               manifest-tool push from-args \
-                --platforms linux/amd64 \
+                --platforms linux/amd64,linux/arm,linux/arm64 \
                 --template "$IMAGE:$VERSION-ARCH" \
                 --target "$IMAGE:latest"
             fi
 
             manifest-tool push from-args \
-              --platforms linux/amd64 \
+              --platforms linux/amd64,linux/arm,linux/arm64 \
               --template "$IMAGE:$VERSION-ARCH" \
               --target "$IMAGE:$VERSION"
 
       - run:
           name: Verify manifest was persisted remotely.
           command: |
-            export VERSION=$(cat ~/VERSION)
+            source $BASH_ENV
             manifest-tool inspect "$IMAGE:$VERSION"
