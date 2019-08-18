@@ -21,6 +21,7 @@ RUN go get -v -d github.com/abiosoft/parent
 RUN go build -o /go/bin/parent github.com/abiosoft/parent
 
 RUN \
+  GOARCH=${GOARCH} \
   VERSION=${version} \
   PLUGINS=${plugins} \
   ENABLE_TELEMETRY=${enable_telemetry} \

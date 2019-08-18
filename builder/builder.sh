@@ -4,6 +4,8 @@ VERSION=${VERSION:-"1.0.3"}
 TELEMETRY=${ENABLE_TELEMETRY:-"true"}
 IMPORT="github.com/caddyserver/caddy"
 
+echo "GOARCH: $GOARCH"
+
 # version <1.0.1 needs to use old import path
 new_import=true
 if [ "$(echo $VERSION | cut -c1)" -eq 0 ] 2>/dev/null || [ "$VERSION" = "1.0.0" ]; then
@@ -42,7 +44,7 @@ get_package() {
         cp -r /dnsproviders/$1/$1.go /caddy/dnsproviders/$1/$1.go
         echo "caddy/dnsproviders/$1"
     else
-        GO111MODULE=off GOOS=linux GOARCH=amd64 caddyplug package $1 2> /dev/null
+        GO111MODULE=off GOOS=linux GOARCH=$GOARCH caddyplug package $1
     fi
 }
 
@@ -68,14 +70,14 @@ module() {
     cd /caddy # build dir
 
     # setup module
-    go mod init caddy
-    go get -v $IMPORT@$VERSION
+    GOARCH=$GOARCH go mod init caddy
+    GOARCH=$GOARCH go get -v $IMPORT@$VERSION
 
     # plugins
     cp -r /plugins/. .
 
     # temp hack for repo rename
-    go get -v -d # download possible plugin deps
+    GOARCH=$GOARCH go get -v -d # download possible plugin deps
     if $new_import; then use_new_import /go/pkg/mod; fi
 
     # main and telemetry
