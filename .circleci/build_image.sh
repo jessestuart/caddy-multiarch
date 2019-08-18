@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/sh
+
+set -eu
 
 if [ $GOARCH == 'amd64' ]; then
   touch qemu-amd64-static
@@ -9,7 +11,7 @@ fi
 
 docker build \
   -t "${IMAGE_ID}:${VERSION}-${GOARCH}" \
-  --build-arg version=$VERSION \
+  --build-arg version=$(echo $VERSION | tr -d 'v') \
   --build-arg target=$TARGET \
   --build-arg goarch=$GOARCH .
 
