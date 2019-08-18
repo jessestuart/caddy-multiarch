@@ -133,7 +133,7 @@ end_stage
 
 # plugin helper
 stage "installing plugin helper"
-GOOS=linux GOARCH=$GOARCH go get -v github.com/abiosoft/caddyplug/caddyplug
+CGO_ENABLED=0 GOOS=linux GOARCH=$GOARCH go get -v github.com/abiosoft/caddyplug/caddyplug
 end_stage
 
 # check for modules support

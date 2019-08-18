@@ -3,12 +3,12 @@ ARG target
 # =======
 # Builder
 # =======
-FROM $target/golang:1.12-alpine as builder
+FROM $target/golang:1.12 as builder
 
 COPY qemu-* /usr/bin/
 COPY builder/builder.sh /usr/bin/builder.sh
 
-RUN apk add --no-cache git gcc musl-dev
+# RUN apk add --no-cache git gcc musl-dev
 
 # FROM abiosoft/caddy:builder as builder
 
