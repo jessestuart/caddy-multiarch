@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu
+
 if [ $GOARCH == 'amd64' ]; then
   touch qemu-amd64-static
 else

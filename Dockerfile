@@ -14,10 +14,13 @@ ENV GOARCH $goarch
 ENV GO111MODULE on
 
 # process wrapper
-RUN go get -v github.com/abiosoft/parent
+RUN go get -v -d github.com/abiosoft/parent
+RUN go build -o /go/bin/parent github.com/abiosoft/parent
 
 RUN \
-  VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=${enable_telemetry} \
+  VERSION=${version} \
+  PLUGINS=${plugins} \
+  ENABLE_TELEMETRY=${enable_telemetry} \
   /bin/sh /usr/bin/builder.sh
 
 # ===========
@@ -36,15 +39,13 @@ ENV ACME_AGREE="true"
 ENV ENABLE_TELEMETRY="true"
 
 RUN apk add --no-cache \
-    ca-certificates \
-    git \
-    mailcap \
-    openssh-client \
-    tzdata
+  ca-certificates \
+  git \
+  mailcap \
+  openssh-client \
+  tzdata
 
-# RUN apk add --no-cache openssh-client git
-
-# install caddy
+# Install caddy.
 COPY --from=builder /install/caddy /usr/bin/caddy
 
 # validate install
