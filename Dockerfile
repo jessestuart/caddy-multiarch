@@ -6,6 +6,7 @@ ARG target
 FROM abiosoft/caddy:builder as builder
 
 COPY qemu-* /usr/bin/
+COPY builder/builder.sh /usr/bin/builder.sh
 
 ARG version="1.0.3"
 ARG plugins="cache,cloudflare,cors,expires,git,realip"
