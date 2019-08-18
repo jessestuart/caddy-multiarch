@@ -3,10 +3,14 @@ ARG target
 # =======
 # Builder
 # =======
-FROM abiosoft/caddy:builder as builder
+FROM $target/golang:1.12-alpine
 
 COPY qemu-* /usr/bin/
 COPY builder/builder.sh /usr/bin/builder.sh
+
+RUN apk add --no-cache git gcc musl-dev
+
+# FROM abiosoft/caddy:builder as builder
 
 ARG version="1.0.3"
 ARG plugins="cache,cloudflare,cors,expires,git,realip"
@@ -21,7 +25,6 @@ RUN go get -v -d github.com/abiosoft/parent
 RUN go build -o /go/bin/parent github.com/abiosoft/parent
 
 RUN \
-  GOARCH=${GOARCH} \
   VERSION=${version} \
   PLUGINS=${plugins} \
   ENABLE_TELEMETRY=${enable_telemetry} \
