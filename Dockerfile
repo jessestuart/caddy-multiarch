@@ -1,16 +1,6 @@
 ARG target
 
-# =======
-# Builder
-# =======
-FROM $target/golang:1.12 as builder
-
-COPY qemu-* /usr/bin/
-COPY builder/builder.sh /usr/bin/builder.sh
-
-# RUN apk add --no-cache git gcc musl-dev
-
-# FROM abiosoft/caddy:builder as builder
+FROM jessestuart/caddy-builder as builder
 
 ARG version="1.0.3"
 ARG plugins="cache,cloudflare,cors,expires,git,realip"
@@ -18,9 +8,7 @@ ARG enable_telemetry="true"
 
 ARG goarch
 ENV GOARCH $goarch
-ENV GO111MODULE on
 
-# process wrapper
 RUN go get -v -d github.com/abiosoft/parent
 RUN go build -o /go/bin/parent github.com/abiosoft/parent
 
@@ -30,11 +18,42 @@ RUN \
   ENABLE_TELEMETRY=${enable_telemetry} \
   /bin/sh /usr/bin/builder.sh
 
+# =======
+# Builder
+# =======
+# FROM $target/golang:1.12 as builder
+
+# COPY qemu-* /usr/bin/
+# COPY builder/builder.sh /usr/bin/builder.sh
+
+# # RUN apk add --no-cache git gcc musl-dev
+
+# # FROM abiosoft/caddy:builder as builder
+
+# ARG version="1.0.3"
+# ARG plugins="cache,cloudflare,cors,expires,git,realip"
+# ARG enable_telemetry="true"
+
+# ARG goarch
+# ENV GOARCH $goarch
+# ENV GO111MODULE on
+
+# # process wrapper
+# RUN go get -v -d github.com/abiosoft/parent
+# RUN go build -o /go/bin/parent github.com/abiosoft/parent
+
+# RUN \
+#   VERSION=${version} \
+#   PLUGINS=${plugins} \
+#   ENABLE_TELEMETRY=${enable_telemetry} \
+#   /bin/sh /usr/bin/builder.sh
+
 # ===========
 # Final stage
 # ===========
 FROM $target/alpine
 LABEL maintainer="Jesse Stuart <hi@jessestuart.com>"
+COPY qemu-* /usr/bin/
 
 ARG version="1.0.3"
 LABEL caddy_version="$version"
