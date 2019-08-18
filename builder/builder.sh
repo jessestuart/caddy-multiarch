@@ -155,7 +155,10 @@ end_stage
 
 # build
 stage "building caddy"
+echo "GOARCH: $GOARCH"
 CGO_ENABLED=0 GOARCH=$GOARCH go build -o caddy
+pwd
+ls -alh
 end_stage
 
 # copy binary
