@@ -1,0 +1,5 @@
+[ver:1,total:1680]
+.gtm/terminal.app:1500,1568782800:360,1568786400:540,1568793600:300,1568797200:300,r
+Dockerfile:90,1568797200:90,r
+.circleci/config.yml:60,1568782800:60,m
+.circleci/build_image.sh:30,1568797200:30,r
