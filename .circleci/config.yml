@@ -35,7 +35,7 @@ shared: &shared
   steps:
     - checkout
     - setup_remote_docker
-    - run: apk add --no-cache curl jq bash make
+    - run: apk add --upgrade --no-cache curl jq bash make
 
     - run:
         name: Set up shared environment vars.
@@ -90,7 +90,7 @@ jobs:
       - run:
           name: Push manifest.
           command: |
-            apk update && apk add curl jq
+            apk update && apk add --upgrade curl jq
             sh .circleci/load_env.sh
             source $BASH_ENV
             sh .circleci/push_manifest.sh
